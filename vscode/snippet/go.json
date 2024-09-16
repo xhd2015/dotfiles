@@ -1,0 +1,500 @@
+{
+    // Place your snippets for go here. Each snippet is defined under a snippet name and has a prefix, body and 
+    // description. The prefix is what is used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
+    // $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. Placeholders with the 
+    // same ids are connected.
+    // Example:
+    // "Print to console": {
+    // 	"prefix": "log",
+    // 	"body": [
+    // 		"console.log('$1');",
+    // 		"$2"
+    // 	],
+    // 	"description": "Log output to console"
+    // }
+    // refer to here:
+    // https://code.visualstudio.com/docs/editor/userdefinedsnippets
+    "Run Specific Test": {
+        "prefix": "test",
+        "body": [
+            "// go test -run ${1:method} -v ./${RELATIVE_FILEPATH/((.*)\\/)?.+/$2/}${0}"
+        ],
+        "description": "generates test // go test -run TestRandN -v pkg/*.go"
+    },
+    "Run Specific Test(no cache)": {
+        "prefix": "test",
+        "body": [
+            "// go test -run ${1:method} -v ./${RELATIVE_FILEPATH/((.*)\\/)?.+/$2/}${0} -count=1"
+        ],
+        "description": "generates test // go test -run TestRandN -v pkg/*.go"
+    },
+    "Run Benchmark": {
+        "prefix": "bench",
+        "body": [
+            "// go test -bench=${1:method} -benchtime=10s -run=NONE -v ./${RELATIVE_FILEPATH/((.*)\\/)?.+/$2/}${0}",
+            "// result:  -           - ns/op",
+            "// latency: - ms"
+        ],
+        "description": "benchmark a method"
+    },
+    "Add Testing Build Tag": {
+        "prefix": "build",
+        "body": [
+            "//+build functional",
+            "${0}"
+        ],
+        "description": "generates //+build functional"
+    },
+    "build go1.18": {
+        "prefix": "go:build",
+        "body": [
+            "// +build go1.18",
+            "//go:build go1.18",
+            "${0}"
+        ],
+        "description": "generates //+build functional"
+    },
+    "Test func": {
+        "prefix": "func Test",
+        "body": [
+            "// go test -run Test${1:Name} -v ./${RELATIVE_FILEPATH/((.*)\\/)?.+/$2/}",
+            "func Test${1:Name}(t *testing.T){",
+            "    ${0}",
+            "}"
+        ]
+    },
+    "Bench func": {
+        "prefix": "func Benchmark",
+        "body": [
+            "// go test -bench=${1:Name} -benchtime=10s -run=NONE -v ./${RELATIVE_FILEPATH/((.*)\\/)?.+/$2/}${0}",
+            "// result: - ns/op",
+            "func Benchmark${1:Name}(b *testing.B){",
+            "    for i := 0; i < b.N; i++ {",
+            "        ${0}",
+            "    }",
+            "}",
+        ]
+    },
+    "Test Cases Definition": {
+        "prefix": "testCases := ",
+        "body": [
+            "testCases := []*struct{",
+            "    Name string",
+            "    ExpectErr error",
+            "}{",
+            "  {",
+            "     Name:\"param error\",",
+            "     ExpectErr:nil,",
+            "  },",
+            "}",
+        ]
+    },
+    "Test Cases Running": {
+        "prefix": [
+            "test.cases",
+            "[DISABLE]for i, testCase := range testCases {"
+        ],
+        "body": [
+            // TODO: use t.Run
+            "for i, testCase := range testCases {",
+            "    t.Logf(\">>>>>>>>>>\\nRUN  case[%d]: %s\",i, testCase.Name)",
+            "    err := nil${0}",
+            "    t.Logf(\"call returns: err = %v\",err)",
+            "    if !errors.Is(err, testCase.ExpectErr){",
+            "        t.Fatalf(\"case[%d] call expect err:%v, found:%v\",testCase.ExpectErr, err)",
+            "    }",
+            "    ",
+            "    t.Logf(\"PASS case[%d]: %s\",i,testCase.Name)",
+            "}"
+        ],
+    },
+    "Handler Define": {
+        "prefix": "func Handler",
+        "body": [
+            "type ${1}Req struct{",
+            "}",
+            "type ${1}Resp struct{",
+            "}",
+            "func ${1}(ctx context.Context,req *${1}Req) (*${1}Resp,error){",
+            "    ${0}",
+            "    return &${1}Resp{",
+            "         ",
+            "    },nil",
+            "}"
+        ],
+    },
+    "Context Define": {
+        "prefix": "ctx:=context.Background()",
+        "body": [
+            "ctx := context.Background()",
+        ],
+    },
+    "Context With Logid": {
+        "prefix": "ctx=logid",
+        "body": [
+            "ctx = kitutil.NewCtxWithLogID(ctx, logid.GenLogID())"
+        ]
+    },
+    "t.Fatal": {
+        "prefix": "t.fatal",
+        "body": [
+            "if ${1:err}!=nil{",
+            "    t.Fatal(${1})",
+            "}",
+            "${0}"
+        ]
+    },
+    "t.Expect": {
+        "prefix": "expect",
+        "body": [
+            "if ${1} != expect {",
+            "    t.Fatalf(\"expect %s = %+v, actual:%+v\",`${1}`,expect,${1})",
+            "}"
+        ]
+    },
+    "RawCall": {
+        "prefix": "RawCall",
+        "body": [
+            "// PSM=${1}.${2}.${3}",
+            "// Method=${4}",
+            "// \"code.byted.org/webcast/rpc_${1}_${2}_${3}/${1}_${2}_${3}\"",
+            "// \"code.byted.org/webcast/rpc_gen/kitex_gen/${1}/${2}/${3}\"",
+            "req := &${3}.${4}Req{",
+            "}",
+            "resp, err := ${1}_${2}_${3}.RawCall.${4}(ctx,req)",
+            "if err!=nil{",
+            "    logs.CtxError(ctx,\"call ${1}.${2}.${3} ${4} error: req = %+v, %v\", req, err)",
+            "    return nil,err",
+            "}",
+        ]
+    },
+    "import pkg": {
+        "prefix": [
+            "imp"
+        ],
+        "body": [
+            // "\"${WORKSPACE_FOLDER/^.*?([\\d\\w_\\.-]+)\\/([\\d\\w_\\.-]+)\\/([\\d\\w_\\.-]+)$/$1\\/$2\\/$3/}/$1\"", // keep the last 3 parts as go module name
+            "\"${WORKSPACE_FOLDER/^.*\\/gopath\\/src\\/(.*)$/$1/}\"", // remove all to .../gopath/src/, remaning as import path
+        ]
+    },
+    "import src pkg": {
+        "prefix": [
+            "impsrc"
+        ],
+        "body": [
+            // "\"${WORKSPACE_FOLDER/^.*?([\\d\\w_\\.-]+)\\/([\\d\\w_\\.-]+)\\/([\\d\\w_\\.-]+)$/$1\\/$2\\/$3/}/$1\"", // keep the last 3 parts as go module name
+            "\"${WORKSPACE_FOLDER/^.*\\/gopath\\/src\\/(.*)$/$1/}/src/\"", // remove all to .../gopath/src/, remaning as import path
+        ]
+    },
+    "import clause": {
+        "prefix": [
+            "import"
+        ],
+        "body": [
+            "import (",
+            "    ${0}",
+            ")"
+        ]
+    },
+    "id": {
+        "prefix": "idgen",
+        "body": [
+            "// code.byted.org/webcast/libs_misc/idgenerator",
+            "id, err := idgenerator.Get()",
+            "if err!=nil {",
+            "    panic(err)",
+            "}"
+        ]
+    },
+    "json": {
+        "prefix": "json",
+        "body": [
+            "${1}JSONbytes,_:=json.Marshal(${1})",
+            "${1}JSON := string(${1}JSONbytes)",
+        ]
+    },
+    "json log": {
+        "prefix": "logjson",
+        "body": [
+            "${1}JSONbytes,_:=json.Marshal(${1})",
+            "t.Logf(\"${1}: %s\",string(${1}JSONbytes))",
+        ]
+    },
+    "anycache single load": {
+        "prefix": "anycache.single",
+        "body": [
+            "// TTL = ${1}",
+            "// Method = ${2}",
+            "const (",
+            "\tcacheTTL    = ${1} * time.Second",
+            "\tcacheDelTTL = ${1} * time.Second",
+            "\t// cache:game:data:{dataType}:{id}",
+            "\t// used by anycache, data cache",
+            "\tcacheKeyTemplate = \"cache:game:data:%v\"",
+            ")",
+            "",
+            "type DAOImpl struct {",
+            "\tdbDAO db.DAO",
+            "\tcache anycache.Fetcher",
+            "}",
+            "",
+            "type extra struct {",
+            "\tTag string",
+            "}",
+            "",
+            "// keys must be exported",
+            "// otherwise they won't",
+            "// get serialized",
+            "type cachedData struct {",
+            "\tValue int64",
+            "}",
+            "",
+            "func NewDataDAO(dbDAO db.DAO) *DAOImpl {",
+            "\tredisClient := client.GetRedisClient(constdef.RedisPSM)",
+            "",
+            "\tdao := &DAOImpl{}",
+            "\t// sizeof(key+value) = 4 + 48 = 52 bytes",
+            "\t// allow 100000 entries, making it 5,200,000 bytes, nearly 6 MB",
+            "\tcacheLoader := anycache.New(",
+            "\t\tcache.NewMultiLevelCache(cache.MustNewLocalBytesCacheLRU(6), cache.NewRedisWrap(redisClient)),",
+            "\t\tcodec.NewJson(codec.JsonImplIteratorDefault)).",
+            "\t\tWithTTL(cacheTTL, cacheDelTTL).",
+            "\t\tWithCacheNil(true).",
+            "\t\tBuildFetcherByLoader(dao.genQueryKey, dao.singleLoad)",
+            "",
+            "\tdao.dbDAO = dbDAO",
+            "\tdao.cache = cacheLoader",
+            "\treturn dao",
+            "}",
+            "",
+            "// ${2} the public interface",
+            "func (c *DAOImpl) ${2}(ctx context.Context, id int64, tag string) (int64, werror.Error) {",
+            "\tvar item *cachedData",
+            "\t_, err := c.cache.Get(ctx, id, item, anycache.WithExtraParam(&extra{",
+            "\t\tTag: tag,",
+            "\t}))",
+            "\tif err != nil {",
+            "\t\tlogs.CtxError(ctx, \"cannot query cache:id=%+v %v\", id, err)",
+            "\t\treturn 0, werror.ServiceInternalError",
+            "\t}",
+            "\treturn item.Value, nil",
+            "}",
+            "",
+            "func (c *DAOImpl) genQueryKey(ctx context.Context, queryItem, extraParam interface{}) string {",
+            "\treturn fmt.Sprintf(cacheKeyTemplate, queryItem.(int64))",
+            "}",
+            "",
+            "// singleLoad the actual underlying loader",
+            "func (c *DAOImpl) singleLoad(ctx context.Context, missedItem, extraParam interface{}) (interface{}, error) {",
+            "\tlogs.CtxInfo(ctx, \"load for cache:items = %+v\", missedItem)",
+            "\tid, ok := missedItem.(int64)",
+            "\tif !ok {",
+            "\t\tlogs.CtxError(ctx, \"missedItem is not int64:%#v\", missedItem)",
+            "\t\treturn nil, werror.ServiceInternalError",
+            "\t}",
+            "\textra, ok := extraParam.(*extra)",
+            "\tif !ok {",
+            "\t\tlogs.CtxError(ctx, \"extra param is not extra type:%#v\", extraParam)",
+            "\t\treturn nil, werror.ServiceInternalError",
+            "\t}",
+            "",
+            "\tresult, err := c.dbDAO.GetDataByID(ctx, id, extra.Tag)",
+            "\tif err != nil {",
+            "\t\treturn nil, err",
+            "\t}",
+            "\tlogs.CtxInfo(ctx, \"load from db:%+v\", result)",
+            "",
+            "\treturn &cachedData{",
+            "\t\tValue: result,",
+            "\t}, nil",
+            "}"
+        ]
+    },
+    "Utils of Array": {
+        "prefix": "utils.arrayEquals",
+        "body": [
+            " src := ${1}",
+            " target := ${2}",
+            "if len(src) != len(target) {",
+            "    t.Fatalf(\"expect array match, given legnth:%v, actual length:%v\", len(src), len(target))",
+            "}",
+            "for _, v := range src {",
+            "    found:=false",
+            "    for _, t := range target{",
+            "       if v==t{",
+            "            found=true",
+            "            break",
+            "       }",
+            "    }",
+            "   if !found{",
+            "      t.Fatalf(\"expect array match, given %v is missing\", v)",
+            "   }",
+            "}",
+        ]
+    },
+    "Get Instance": {
+        "prefix": [
+            "func Get",
+            "utils.once"
+        ],
+        "body": [
+            "var ${1} ${2}",
+            "var ${1}InitOnce sync.Once",
+            "",
+            "func Get${2}() ${2} {",
+            "    if ${1} != nil {",
+            "        return ${1} ",
+            "    }",
+            "    ${1}InitOnce.Do(func() {",
+            "        ${1} = &${2}Impl{}",
+            "    })",
+            "    return ${1}",
+            "}"
+        ]
+    },
+    "Assert Interface": {
+        "prefix": "assert",
+        "body": [
+            "var _ = (${2:interface})((*${1})(nil)) // assert ${1} implements ${2}"
+        ]
+    },
+    "service definition": {
+        "prefix": "service",
+        "body": [
+            "// ${1} is responsible for",
+            "type ${1} interface {",
+            "       // ${2}",
+            "       ${2}(ctx context.Context, req string) (err error)",
+            "}",
+            "",
+            "var ${1/(.)(.*)/${1:/downcase}${2}/} ${1}",
+            "",
+            "func Get${1}() ${1} {",
+            "       return ${1/(.)(.*)/${1:/downcase}${2}/}",
+            "}",
+            "func Set${1}(s ${1}) {",
+            "       ${1/(.)(.*)/${1:/downcase}${2}/} = s",
+            "}",
+            ""
+        ]
+    },
+    "service impl": {
+        "prefix": "serviceimpl",
+        "body": [
+            "func init() {",
+            "    service.Set${1}(${1/(.)(.*)/${1:/downcase}${2}/}Impl{})",
+            "}",
+            "",
+            "type ${1/(.)(.*)/${1:/downcase}${2}/}Impl struct {",
+            "}",
+            "",
+            "func (${1/(.)(.*)/${1:/downcase}${2}/}Impl) ${2}(ctx context.Context) error {",
+            "    return nil${0}",
+            "}",
+        ]
+    },
+    "inspect_model": {
+        "prefix": "inspect_model",
+        "body": "inspect_model \"github.com/xhd2015/go-inspect/model\""
+    },
+    "inspect_model.": {
+        "prefix": "inspect_model.",
+        "body": "inspect_model."
+    },
+    "log": {
+        "prefix": "log",
+        "body": "\"github.com/xhd2015/phantom/log\""
+    },
+    "model": {
+        "prefix": "model",
+        "body": "\"github.com/xhd2015/gitops/model\""
+    },
+    "ctx": {
+        "prefix": "define ctx key",
+        "body": [
+            "type ctx${1}KeyType struct{}",
+            "var ctx${1}Key ctx${1}KeyType",
+            "",
+            "func With${1}(ctx context.Context, val ${2}) context.Context {",
+            "    return context.WithValue(ctx, ctx${1}Key, val)",
+            "}",
+            "func Get${1}(ctx context.Context) ${2} {",
+            "    if ctx == nil {",
+            "        return ${2}_Default",
+            "    }",
+            "    val := ctx.Value(ctx${1}Key)",
+            "    if val == nil {",
+            "        return ${2}_Default",
+            "    }",
+            "    return val.(${2})",
+            "}",
+        ]
+    },
+    "enum": {
+        "prefix": "enum",
+        "body": [
+            "type ${1} string",
+            "const (",
+            "   ${1}_${2} ${1} = \"${2}\"",
+            ")",
+        ]
+    },
+    "cmd": {
+        "prefix": "cli",
+        "body": [
+            "package main",
+            "import (",
+            "    \"os\"",
+            "    \"fmt\"",
+            "    \"strings\"",
+            ")",
+            "const help=`",
+            " PROG help to parse",
+            "",
+            "Usage: Prog x [OPTIONS]",
+            "Options:",
+            "  --help   show help message",
+            "`",
+            "func main() {",
+            "     err := handle(os.Args[1:])",
+            "     if err != nil {",
+            "        fmt.Fprintf(os.Stderr, \"%v\\n\", err)",
+            "        os.Exit(1)",
+            "    }",
+            "}",
+            "func handle(args []string) error {",
+            "    var some string",
+            "",
+            "    var remainArgs []string",
+            "    n := len(args)",
+            "    for i := 0; i < n; i++ {",
+            "        if args[i] == \"--some\" {",
+            "            if i+1 >= n {",
+            "                return fmt.Errorf(\"%v requires arg\", args[i])",
+            "            }",
+            "            some = args[i+1]",
+            "            i++",
+            "            continue",
+            "        }",
+            "       if args[i] == \"--help\" {",
+            "            fmt.Println(strings.TrimSpace(help))",
+            "            return nil",
+            "       }",
+            "       if args[i] == \"--\" {",
+            "            remainArgs = append(remainArgs, args[i+1:]...)",
+            "            break",
+            "        }",
+            "        if strings.HasPrefix(args[i], \"-\") {",
+            "            return fmt.Errorf(\"unrecognized flag: %v\", args[i])",
+            "        }",
+            "        remainArgs = append(remainArgs, args[i])",
+            "    }",
+            "    // TODO handle",
+            "    _ = some ${0}",
+            "",
+            "    return nil",
+            "}",
+            ""
+        ]
+    }
+}
