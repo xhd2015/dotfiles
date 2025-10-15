@@ -1,2 +1,3 @@
 # Dotfiles
-Shared dotfiles.
+
+Configuration of daily drivers, shared here.
